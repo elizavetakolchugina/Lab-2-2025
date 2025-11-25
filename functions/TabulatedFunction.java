@@ -3,6 +3,7 @@ package functions;
 public class TabulatedFunction{
     private FunctionPoint[] points;
     private int pointsCount;
+    private static final double EPSILON = 1e-9;
 
     public TabulatedFunction(double leftX, double rightX, int pointsCount){
         points = new FunctionPoint[pointsCount + 2];
@@ -35,22 +36,22 @@ public class TabulatedFunction{
     }
 
     public double getFunctionValue(double x){
-        if (x < getLeftDomainBorder() || x > getRightDomainBorder()) {
+        if (doubleLess(x, getLeftDomainBorder()) || doubleGreater(x, getRightDomainBorder())) {
             return Double.NaN;
         }
         for (int i = 0; i < pointsCount - 1; i++){
             double x_1 = points[i].getX();
             double x_2 = points[i + 1].getX();
 
-            if (x == x_1){
+            if (doubleEquals(x, x_1)){
                 return points[i].getY();
             }
 
-            if (x == x_2){
+            if (doubleEquals(x, x_2)){
                 return points[i + 1].getY();
             }
 
-            if (x > x_1 && x < x_2){
+            if (doubleGreater(x, x_1) && doubleLess(x, x_2)){
                 double y_1 = points[i].getY();
                 double y_2 = points[i + 1].getY();
 
@@ -72,10 +73,10 @@ public class TabulatedFunction{
         if (index < 0 || index >= pointsCount) {
             return;
         }
-        if (index > 0 && point.getX() <= points[index - 1].getX()) {
+        if (index > 0 && doubleLessOrEquals(point.getX(), points[index - 1].getX())) {
             return; 
         }
-        if (index < pointsCount - 1 && point.getX() >= points[index + 1].getX()) {
+        if (index < pointsCount - 1 && doubleGreaterOrEquals(point.getX(), points[index + 1].getX())) {
             return; 
         }
         
@@ -90,10 +91,10 @@ public class TabulatedFunction{
         if (index < 0 || index >= pointsCount) {
             return;
         }
-        if (index > 0 && x <= points[index - 1].getX()) {
+        if (index > 0 && doubleLessOrEquals(x, points[index - 1].getX())) {
             return; 
         }
-        if (index < pointsCount - 1 && x >= points[index + 1].getX()) {
+        if (index < pointsCount - 1 && doubleGreaterOrEquals(x, points[index + 1].getX())) {
             return; 
         }
         
@@ -124,10 +125,10 @@ public class TabulatedFunction{
     public void addPoint(FunctionPoint point) {
         FunctionPoint newPoint = new FunctionPoint(point);
         int newIndex = 0;
-        while (newIndex < pointsCount && points[newIndex].getX() < newPoint.getX()) {
+        while (newIndex < pointsCount && doubleLess(points[newIndex].getX(), newPoint.getX())) {
          newIndex++;
         }
-        if  (newIndex < pointsCount && points[newIndex].getX() == newPoint.getX()) {
+        if  (newIndex < pointsCount && doubleEquals(points[newIndex].getX(), newPoint.getX())) {
             return; 
         }
         if (pointsCount == points.length) {
@@ -143,5 +144,24 @@ public class TabulatedFunction{
         FunctionPoint[] newArray = new FunctionPoint[points.length * 2 + 2];
         System.arraycopy(points, 0, newArray, 0, pointsCount);
         points = newArray;
+    }
+
+    private boolean doubleEquals(double a, double b) {
+        return Math.abs(a - b) < EPSILON;
+    }
+
+    private boolean doubleLess(double a, double b) {
+        return a < b - EPSILON;
+    }
+
+    private boolean doubleGreater(double a, double b) {
+        return a > b + EPSILON;
+    }
+     private boolean doubleLessOrEquals(double a, double b) {
+        return a < b + EPSILON;
+    }
+
+    private boolean doubleGreaterOrEquals(double a, double b) {
+        return a > b - EPSILON;
     }
 }
